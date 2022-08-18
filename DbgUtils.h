@@ -70,7 +70,7 @@ extern bool gbTraceOutputToStdErr;
 	#ifdef _WIN32
 		#include "crtdbg.h"
 	#else
-		// #include <assert.h>
+		#include <assert.h>
 		#define _ASSERT(e) assert(e)
 		#define _ASSERTE(e) assert(e)
 	#endif

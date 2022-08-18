@@ -6,7 +6,6 @@ MockRobot::MockRobot()
     port = 0;
 }
 
-
 void MockRobot::setIPAddress(std::string IPAdress)
 {
     this->IPAddress = IPAdress;
@@ -31,16 +30,19 @@ void MockRobot::disconnect()
 int MockRobot::sendCommand(std::string command)
 {
     //send command over command over TCP/IP network
+    std::string request = command;
 }
 
 int MockRobot::sendCommand(std::string command, int location)
 {
     //send command over command over TCP/IP network
+    std::string request = command + "%" + to_string(location);
 }
 
 std::string MockRobot::robotStatus(std::string command, int processID)
 {
     //send command over command over TCP/IP network
+    std::string request = command + "%" + to_string(processID);
 }
 
 int MockRobot::sendHome()
@@ -58,8 +60,22 @@ int MockRobot::startPlacing(int destinationLocation)
     return sendCommand("place", destinationLocation);
 }
 
+
+int MockRobot::transfer(int source, int destination)
+{
+    int pickProcess = startPicking(source);
+    if(getStatus(pickProcess)=="complete")
+    {
+        int placeProcess = startPlacing(destination);
+        
+        return placeProcess;
+
+    }
+
+    return pickProcess;
+}
+
 std::string MockRobot::getStatus(int processId)
 {
-    std::string status = robotStatus("status", processId);
-    return status;
+    return robotStatus("status", processId); 
 }

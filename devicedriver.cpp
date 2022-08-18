@@ -1,6 +1,5 @@
 
 #include "devicedriver.h"
-#include "DBC_EnforceOrder.h"
 
 DeviceDriver::DeviceDriver() {}
 
@@ -13,12 +12,17 @@ std::string DeviceDriver::OpenConnection(std::string IPAddress) {
 
 }
 
-std::string DeviceDriver::CloseConnection() {
+std::string DeviceDriver::CloseConnection() 
+{
+     Enter("OpenConnection");
     robot.disconnect();
     return " ";
 }
 
-std::string DeviceDriver::Initialize() {
+std::string DeviceDriver::Initialize() 
+{   
+    Enter("Initialize");
+    Require(Called("OpenConnection"));
     robot.sendHome();
     return "";
 }
@@ -40,7 +44,6 @@ std::string DeviceDriver::ExecuteOperation(const std::string operation, std::vec
         }
         
     }
-
 
     if(operation == "pick")
     {

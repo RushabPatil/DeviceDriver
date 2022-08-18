@@ -2,10 +2,13 @@
 #include <string>
 #include <vector>
 #include "mockrobot.h"
+#include "DBC_EnforceOrder.h"
+
 
 class DeviceDriver
 {
     private:
+        DBC_Data;
         MockRobot robot;
 
     public:
