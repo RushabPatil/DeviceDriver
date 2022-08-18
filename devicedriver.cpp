@@ -45,7 +45,8 @@ std::string DeviceDriver::ExecuteOperation(const std::string operation, std::vec
 {
     Enter("ExecuteOperation");
 
-    if(robot.getStatus(currentProcessID) == "In Progress") {
+    if(currentProcessID < 0) {
+        
         return "Other operation is in progress. Another operation cannot be executed until the current operation is completed.";
     }
 
