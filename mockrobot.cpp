@@ -3,7 +3,6 @@
 MockRobot::MockRobot()
 {
     IPAddress = "";
-    port = 0;
 }
 
 void MockRobot::setIPAddress(std::string IPAdress)
@@ -20,12 +19,14 @@ void MockRobot::setPort(int port)
 bool MockRobot::connect()
 {
     //make a connection with the robot software
+    // client socket program
     return false;
 }
 
 bool MockRobot::disconnect()
 {
     //disconnect with the robot
+    // close the socket
     return false;
 }
 
