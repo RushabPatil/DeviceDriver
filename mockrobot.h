@@ -15,8 +15,8 @@ class MockRobot
         MockRobot();
         void setIPAddress(std::string IPAdress);
         void setPort(int port);
-        void connect();
-        void disconnect();
+        bool connect();
+        bool disconnect();
         int sendHome();
         int startPicking(int sourceLocation);
         int startPlacing(int destinationLocation);

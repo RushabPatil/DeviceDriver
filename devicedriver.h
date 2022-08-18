@@ -12,6 +12,7 @@ class DeviceDriver
         MockRobot robot;
 
     public:
+        static int currentProcessID;
         DeviceDriver();
         std::string OpenConnection(std::string IPAddress);
         std::string CloseConnection();

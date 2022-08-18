@@ -17,14 +17,16 @@ void MockRobot::setPort(int port)
 }
 
 
-void MockRobot::connect()
+bool MockRobot::connect()
 {
     //make a connection with the robot software
+    return false;
 }
 
-void MockRobot::disconnect()
+bool MockRobot::disconnect()
 {
     //disconnect with the robot
+    return false;
 }
 
 int MockRobot::sendCommand(std::string command)
