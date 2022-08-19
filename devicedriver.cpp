@@ -16,7 +16,7 @@ std::string DeviceDriver::OpenConnection(std::string IPAddress)
         return "Connection established";
     }
     else {
-        return "Connection failed. Check IP address or port number.";
+        return "Connection failed. Check IP address or port number";
     }
 
 }
@@ -62,7 +62,7 @@ std::string DeviceDriver::Initialize()
         }
         else if (robot.getStatus(currentProcessID) == "In Progress") 
         {
-            return "Robot is initializing....";
+            std::cout << "Robot is initializing...." << std::endl;
         }
         else(robot.getStatus(currentProcessID) == "FinishedSuccessfully")
         {
@@ -84,8 +84,6 @@ std::string DeviceDriver::Initialize()
  */
 std::string DeviceDriver::ExecuteOperation(const std::string operation, std::vector<std::string> paramNames, std::vector<int> paramValues) 
 {
-    Enter("ExecuteOperation");
-
     if(!robot.isConnected())
     {
         return "Robot is not connected. Please connect to the robot again.";
@@ -126,18 +124,68 @@ std::string DeviceDriver::ExecuteOperation(const std::string operation, std::vec
     if(operation == "home")
     {
         currentProcessID = robot.sendHome();
+        if(robot.getStatus(currentProcessID) == "Terminated with error")
+        {
+            return "Couldn't finish the action. Please try again.";
+        }
+        else if (robot.getStatus(currentProcessID) == "FinishedSuccessfully")
+        {
+            return "" ;
+        }
+        else
+        {
+            std::cout << "Homing operation is in progress" << std::endl;
+        } 
     }
     else if(operation == "pick")
     {
         currentProcessID = robot.startPicking(sourceLocation);
+        if(robot.getStatus(currentProcessID) == "Terminated with error")
+        {
+            return "Couldn't finish the action. Please try again.";
+        }
+        else if (robot.getStatus(currentProcessID) == "FinishedSuccessfully")
+        {
+            return "" ;
+        }
+        else
+        {
+            std::cout << "Pick operation is in progress" << std::endl;
+        } 
     }
     else if(operation == "place")
     {
         currentProcessID = robot.startPlacing(destinationLocation);
+
+        if(robot.getStatus(currentProcessID) == "Terminated with error")
+        {
+            return "Couldn't finish the action. Please try again.";
+        }
+        else if (robot.getStatus(currentProcessID) == "FinishedSuccessfully")
+        {
+            return "" ;
+        }
+        else
+        {
+            std::cout << "Place operation is in progress" << std::endl;
+        } 
     }
     else if(operation == "transfer")
     {
         currentProcessID = robot.transfer(sourceLocation, destinationLocation);
+
+         if(robot.getStatus(currentProcessID) == "Terminated with error")
+        {
+            return "Couldn't finish the action. Please try again.";
+        }
+        else if (robot.getStatus(currentProcessID) == "FinishedSuccessfully")
+        {
+            return "" ;
+        }
+        else
+        {
+            std::cout << "Transfer in progress" << std::endl;
+        } 
     }
     else(operation == "status")
     {
@@ -151,7 +199,7 @@ std::string DeviceDriver::ExecuteOperation(const std::string operation, std::vec
         }
         else
         {
-            return "Task in progress";
+            std::cout << "Task in progress" << std::endl;
         }   
     }
   
