@@ -13,10 +13,12 @@ class MockRobot
         
     public:
         MockRobot();
+        bool isInitialized;
         void setIPAddress(std::string IPAdress);
         void setPort(int port);
         bool connect();
         bool disconnect();
+        bool isConnected();
         int sendHome();
         int startPicking(int sourceLocation);
         int startPlacing(int destinationLocation);

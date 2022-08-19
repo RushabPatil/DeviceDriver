@@ -3,8 +3,14 @@
 
 DeviceDriver::DeviceDriver() {}
 
-std::string DeviceDriver::OpenConnection(std::string IPAddress) {
-    
+/**
+ * @brief 
+ * 
+ * @param IPAddress 
+ * @return std::string 
+ */
+std::string DeviceDriver::OpenConnection(std::string IPAddress) 
+{   
     robot.setIPAddress(IPAddress);
     if(robot.connect()) {
         return "Connection established";
@@ -15,9 +21,13 @@ std::string DeviceDriver::OpenConnection(std::string IPAddress) {
 
 }
 
+/**
+ * @brief 
+ * 
+ * @return std::string 
+ */
 std::string DeviceDriver::Abort() 
 {
-    Enter("Abort");
     if(robot.disconnect()) {
         return "Connection Terminated";
     }
@@ -26,24 +36,65 @@ std::string DeviceDriver::Abort()
     }
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return std::string 
+ */
 std::string DeviceDriver::Initialize() 
 {   
-    Enter("Initialize");
-    Require(Called("OpenConnection"));
-    currentProcessID = robot.sendHome();
-    if(robot.getStatus(currentProcessID) == "Terminated with error")
+    if(!robot.isConnected())
     {
-        return "Couldn't finish the action. Please try again.";
+        return "Robot is not connected. Please connect to the robot again.";
     }
-    else if (robot.getStatus(currentProcessID) == "FinishedSuccessfully")
+    else
     {
-        return "";
+        return "Robot is connected. Initializing the robot...";
     }
+
+    while (robot.isInitialized == false)
+    {
+        currentProcessID = robot.sendHome();
+        if(robot.getStatus(currentProcessID) == "Terminated with error")
+        {
+            return "Couldn't finish the action. Please try again.";
+        }
+        else if (robot.getStatus(currentProcessID) == "In Progress") 
+        {
+            return "Robot is initializing....";
+        }
+        else(robot.getStatus(currentProcessID) == "FinishedSuccessfully")
+        {
+            robot.isInitialized = true;
+            return "";
+        }
+    }
+    
 }
 
+
+/**
+ * @brief 
+ * 
+ * @param operation 
+ * @param paramNames 
+ * @param paramValues 
+ * @return std::string 
+ */
 std::string DeviceDriver::ExecuteOperation(const std::string operation, std::vector<std::string> paramNames, std::vector<int> paramValues) 
 {
     Enter("ExecuteOperation");
+
+    if(!robot.isConnected())
+    {
+        return "Robot is not connected. Please connect to the robot again.";
+    }
+
+    if(!robot.isInitialized)
+    {
+        return "Robot is not initialized. Please initialize the robot to execute any operations.";
+    }
 
     if(currentProcessID < 0) {
         

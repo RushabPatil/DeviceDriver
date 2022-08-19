@@ -3,6 +3,7 @@
 MockRobot::MockRobot()
 {
     IPAddress = "";
+    isInitialized = false;
 }
 
 void MockRobot::setIPAddress(std::string IPAdress)
