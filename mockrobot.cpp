@@ -4,6 +4,8 @@ MockRobot::MockRobot()
 {
     IPAddress = "";
     isInitialized = false;
+    
+
 }
 
 void MockRobot::setIPAddress(std::string IPAdress)
@@ -17,58 +19,205 @@ void MockRobot::setPort(int port)
 }
 
 
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 bool MockRobot::connect()
 {
-    //make a connection with the robot software
-    // client socket program
-    return false;
+    // Initialize Winsock
+    WSADATA wsaData;
+    int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != NO_ERROR) {
+        std::cout << "WSAStartup function failed with error: %d\n" << iResult << std::endl;
+        return false;
+    }
+
+    // Create a client SOCKET for connecting to robot's server
+    client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (ConnectSocket == INVALID_SOCKET) {
+        std::cout << "connect function failed with error: %ld\n" << WSAGetLastError() << std::endl;
+        WSACleanup();
+    }   
+
+    // The sockaddr_in structure specifies the address family,
+    sockaddr_in clientService;
+    clientService.sin_family = AF_INET;
+    clientService.sin_addr.s_addr = inet_addr(IPAddress.c_str());
+    clientService.sin_port = htons(port);
+
+
+    // Connect to server on robot software
+    iResult = connect(client, (SOCKADDR *) & clientService, sizeof (clientService));
+    if (iResult == SOCKET_ERROR) {
+        std::cout << "connect function failed with error: %ld\n" << WSAGetLastError() << std::endl;
+        iResult = closesocket(client);
+        if (iResult == SOCKET_ERROR)
+            std::cout << "closesocket function failed with error: %ld\n" << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return false;
+    }
+
+    std::out << "Connected to the robot..." << std::endl;
+
+    return true;
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 bool MockRobot::disconnect()
 {
     //disconnect with the robot
     // close the socket
-    return false;
+    int iResult = closesocket(client);
+    if (iResult == SOCKET_ERROR) 
+    {
+        std::cout << "closesocket function failed with error: %ld\n" << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return false;
+    }
+    
+    std::cout << "Robot disconnected" << std::endl;
+    return true;
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 int MockRobot::sendCommand(std::string command)
 {
+
+    int recvbuf_len = DEFAULT_BUFLEN;
+    char recvbuf[DEFAULT_BUFLEN] = "";
+
     //send command over command over TCP/IP network
     std::string request = command;
+
+    int iResult = send(client, request.c_str(), (int)strlen(request.c_str()), 0 );
+    if (iResult == SOCKET_ERROR) {
+        wprintf(L"send failed with error: %d\n", WSAGetLastError());
+        closesocket(ConnectSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Receive until the peer closes the connection
+    do {
+        iResult = recv(client, recvbuf, recvbuf_len, 0);
+        if (iResult > 0) {
+            printf("Bytes received: %d\n", iResult);
+            return (int)recvbuf;
+        }
+        else if (iResult == 0)
+            printf("Connection closed\n");
+        else
+            printf("recv failed with error: %d\n", WSAGetLastError());
+
+    } while( iResult > 0 );
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 int MockRobot::sendCommand(std::string command, int location)
 {
+    int recvbuf_len = DEFAULT_BUFLEN;
+    char recvbuf[DEFAULT_BUFLEN] = "";
+
     //send command over command over TCP/IP network
     std::string request = command + "%" + to_string(location);
+
+    int iResult = send(client, request.c_str(), (int)strlen(request.c_str()), 0 );
+    if (iResult == SOCKET_ERROR) {
+        wprintf(L"send failed with error: %d\n", WSAGetLastError());
+        closesocket(ConnectSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Receive until the peer closes the connection
+    do {
+        iResult = recv(client, recvbuf, recvbuf_len, 0);
+        if (iResult > 0) {
+            printf("Bytes received: %d\n", iResult);
+            return (int)recvbuf;
+        }
+        else if (iResult == 0)
+            printf("Connection closed\n");
+        else
+            printf("recv failed with error: %d\n", WSAGetLastError());
+
+    } while( iResult > 0 );
 }
 
+
+
+/**
+ * @brief 
+ * 
+ * @return std::string 
+ */
 std::string MockRobot::robotStatus(std::string command, int processID)
 {
     //send command over command over TCP/IP network
     std::string request = command + "%" + to_string(processID);
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 int MockRobot::sendHome()
 {
     return sendCommand("home");
 }
 
+
+
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 int MockRobot::startPicking(int sourceLocation)
 {
     return sendCommand("pick", sourceLocation);
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 int MockRobot::startPlacing(int destinationLocation)
 {
     return sendCommand("place", destinationLocation);
 }
 
 
+/**
+ * @brief 
+ * 
+ * @return bool 
+ */
 int MockRobot::transfer(int source, int destination)
 {
     int pickProcess = startPicking(source);
-    if(getStatus(pickProcess)=="complete")
+    if(getStatus(pickProcess)=="FinishedSuccessfully")
     {
         int placeProcess = startPlacing(destination);
         
@@ -79,6 +228,12 @@ int MockRobot::transfer(int source, int destination)
     return pickProcess;
 }
 
+
+/**
+ * @brief 
+ * 
+ * @return std::string 
+ */
 std::string MockRobot::getStatus(int processId)
 {
     return robotStatus("status", processId); 
