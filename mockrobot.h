@@ -13,7 +13,6 @@ class MockRobot
         SOCKET client;
         int sendCommand(std::string command);
         int sendCommand(std::string command, int location);
-        std::string robotStatus(std::string command, int processId);
         
     public:
         MockRobot();
